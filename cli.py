@@ -8,12 +8,17 @@ from storage.repository import load_jobs, save_jobs
 def cli():
     pass
 
+# Commands to search for jobs and optional filters
 @cli.command()
 @click.option("--search", default="", help="Search keyword for job titles")
 @click.option("--category", default="", help="Filter jobs by category")
 @click.option("--limit", default=10, help="Limit the number of jobs displayed")
 
+
 def search(search, category, limit):
+    """Search for jobs based on a search term and optional category filter.
+    Displays a limited number of job results based on the provided criteria.
+"""
     jobs = fetch_jobs(search)
 
     if category:
@@ -30,11 +35,15 @@ def search(search, category, limit):
     for job in jobs[:limit]:
         print(f"{job['company_name']} - {job['title']}")
 
+
 @cli.command(name="check-new")
 @click.option("--search", default="", help="Search keyword for job titles")
 @click.option("--category", default="", help="Filter jobs by category")
 @click.option("--limit", default=10, help="Limit the number of new jobs displayed")
 def check_new(search, category, limit):
+    """Check for new jobs based on a search term and optional category filter.
+    Compares newly fetched jobs with previously stored jobs to identify and display new job listings.
+    """
     old_jobs = load_jobs()
     new_jobs = fetch_jobs(search) or []
 
@@ -60,6 +69,7 @@ def check_new(search, category, limit):
         for job in fresh_jobs[:limit]:
             print(f"{job['company_name']} - {job['title']}")
 
+    # keep track of all jobs seen so far by combining old and new jobs
     updated_jobs = old_jobs + fresh_jobs
     save_jobs(updated_jobs)
     
